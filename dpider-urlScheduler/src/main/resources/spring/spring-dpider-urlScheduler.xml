@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <context:component-scan base-package="cn.dpider.urlScheduler"/>
+
+    <!--**************************************本地业务逻辑配置 start******************************************-->
+    <bean id="urlSchedulerMonitorCenter" class="cn.dpider.urlScheduler.urlScdMoniter.UrlSchedulerMonitorCenter"></bean>
+    <!--**************************************本地业务逻辑配置 end******************************************-->
+
+    <!--**************************************Redis配置******************************************-->
+    <!-- redis数据源 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <!-- 最大等待时间 -->
+        <property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+        <!-- 返回连接时，检测连接是否成功 -->
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+    </bean>
+
+    <!-- Spring-redis连接池管理工厂 -->
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <!-- IP地址 -->
+        <property name="hostName" value="${redis.host}" />
+        <!-- 端口号 -->
+        <property name="port" value="${redis.port}" />
+        <property name="password" value="${redis.password}"/>
+        <!-- 超时时间 默认2000-->
+        <property name="timeout" value="${redis.timeout}" />
+        <!-- 连接池配置引用 -->
+        <property name="poolConfig" ref="jedisPoolConfig" />
+        <!-- usePool：是否使用连接池 -->
+        <property name="usePool" value="true"/>
+    </bean>
+
+    <!-- redis template definition -->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConnectionFactory" />
+        <property name="keySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <property name="valueSerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <property name="hashKeySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <property name="hashValueSerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <!--开启事务  -->
+        <!--<property name="enableTransactionSupport" value="true"></property>-->
+    </bean>
+
+    <!--自定义redis工具类,在需要缓存的地方注入此类  -->
+    <bean id="redisCacheManager" class="cn.dpider.urlScheduler.utils.RedisCacheManager">
+        <property name="redisTemplate" ref="redisTemplate" />
+    </bean>
+
+    <!--**************************************远程Rpc******************************************-->
+
+    <bean id="redisDuplicater" class="cn.dpider.urlScheduler.duplicate.impl.RedisDuplicater">
+    </bean>
+
+    <!-- 具体的实现bean -->
+    <bean id="urlSchedulerService" class="cn.dpider.urlScheduler.support.redis.RedisUrlSchedulerServiceImpl">
+        <property name="duplicater" ref="redisDuplicater"/>
+    </bean>
+
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="dpider-urlScheduler"  />
+
+    <!-- 使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" />
+
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20880" />
+
+    <!-- 声明需要暴露的服务接口 -->
+    <dubbo:service interface="cn.dpider.urlScheduler.api.UrlSchedulerService" ref="urlSchedulerService" />
+
+
+    <!--*********************************任务调度配置 start***********************************-->
+    <bean id="uploadUrlScheInfoBean" class="cn.dpider.urlScheduler.job.UploadUrlScheInfoJob"></bean>
+
+    <bean id="uploadUrlScheInfoMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="uploadUrlScheInfoBean"/>
+        </property>
+        <property name="targetMethod">
+            <value>run</value>
+        </property>
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <!-- ======================== 调度触发器 ======================== -->
+
+
+    <bean id="uploadUrlScheInfoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="uploadUrlScheInfoMethod"></property>
+        <!-- 每隔两分钟运行，从第三分钟开始 -->
+        <property name="cronExpression" value="0 3/2 * * * ? "></property>
+        <!-- 每隔三十分钟运行 -->
+        <!--<property name="cronExpression" value="0 0/30 * * * ?"></property>-->
+        <!-- 每2分钟运行，从第零分钟开始 -->
+        <!--<property name="cronExpression" value="0 0/2 * * * ? "></property>-->
+    </bean>
+
+    <!-- ======================== 调度工厂 ======================== -->
+    <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="uploadUrlScheInfoTrigger"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--*********************************任务调度配置 end***********************************-->
+
+</beans>

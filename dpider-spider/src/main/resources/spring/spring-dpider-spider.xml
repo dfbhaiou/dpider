@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--*********************************任务调度配置 start***********************************-->
+    <bean id="uploadSpiderInfoBean" class="cn.dpider.spider.job.UploadSpiderInfoJob"></bean>
+
+    <bean id="uploadSpiderInfoMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="uploadSpiderInfoBean"/>
+        </property>
+        <property name="targetMethod">
+            <value>run</value>
+        </property>
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <!-- ======================== 调度触发器 ======================== -->
+
+
+    <bean id="uploadSpiderInfoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="uploadSpiderInfoMethod"></property>
+        <!-- 每隔两分钟运行，从第三分钟开始 -->
+        <property name="cronExpression" value="0 3/2 * * * ? "></property>
+        <!-- 每隔三十分钟运行 -->
+        <!--<property name="cronExpression" value="0 0/30 * * * ?"></property>-->
+        <!-- 每2分钟运行，从第零分钟开始 -->
+        <!--<property name="cronExpression" value="0 0/2 * * * ? "></property>-->
+    </bean>
+
+    <!-- ======================== 调度工厂 ======================== -->
+    <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="uploadSpiderInfoTrigger"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--*********************************任务调度配置 end***********************************-->
+
+    <!--*********************************远程RPC start ***********************************-->
+
+    <!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+    <dubbo:application name="dpider-spider"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" />
+
+    <dubbo:reference id="urlSchedulerService"
+                     interface="cn.dpider.urlScheduler.api.UrlSchedulerService" />
+    <!--*********************************远程RPC end ***********************************-->
+
+    <!--*********************************本地相关依赖***********************************-->
+
+    <context:component-scan base-package="cn.dpider.spider.*"/>
+
+    <!--开启注解扫描事务-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <!--配置数据源-->
+    <context:property-placeholder location="classpath:spring/db.properties"/>
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--配置SpringJDBC-->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name = "dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--配置kwPipeline-->
+    <bean id="kwPipeLine" class="cn.dpider.spider.pipeline.KwPipeLine">
+    </bean>
+
+    <!--配置slaveScheduler-->
+    <bean id="slaveScheduler" class="cn.dpider.spider.scheduler.SlaveScheduler"></bean>
+
+</beans>
