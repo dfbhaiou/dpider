@@ -53,7 +53,9 @@
     <dubbo:registry address="zookeeper://127.0.0.1:2181" />
 
     <dubbo:reference id="urlSchedulerService"
-                     interface="cn.dpider.urlScheduler.api.UrlSchedulerService" />
+                     interface="cn.dpider.urlScheduler.api.UrlSchedulerService"
+                     cluster="failover"
+                     loadbalance="leastactive"/>
     <!--*********************************远程RPC end ***********************************-->
 
     <!--*********************************本地相关依赖***********************************-->
