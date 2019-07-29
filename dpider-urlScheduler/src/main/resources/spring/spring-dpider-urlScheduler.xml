@@ -8,6 +8,8 @@
 
     <context:component-scan base-package="cn.dpider.urlScheduler"/>
 
+ 	<context:property-placeholder location="classpath:redis.properties"/>
+ 	
     <!--**************************************本地业务逻辑配置 start******************************************-->
     <bean id="urlSchedulerMonitorCenter" class="cn.dpider.urlScheduler.urlScdMoniter.UrlSchedulerMonitorCenter"></bean>
     <!--**************************************本地业务逻辑配置 end******************************************-->

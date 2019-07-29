@@ -14,7 +14,7 @@
     <bean id="noticeHelper" class="cn.dpider.monitor.notice.email.EmailNoticeService">
         <property name="recipients">
             <array>
-                <value>820727003@qq.com</value>
+                <value>695335103@qq.com</value>
             </array>
         </property>
     </bean>

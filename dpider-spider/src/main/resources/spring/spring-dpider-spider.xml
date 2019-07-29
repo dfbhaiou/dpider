@@ -50,7 +50,7 @@
     <dubbo:application name="dpider-spider"/>
 
     <!-- 使用zookeeper注册中心暴露服务地址 -->
-    <dubbo:registry address="zookeeper://127.0.0.1:2181" />
+    <dubbo:registry address="zookeeper://192.168.11.182:2181" />
 
     <dubbo:reference id="urlSchedulerService"
                      interface="cn.dpider.urlScheduler.api.UrlSchedulerService"
