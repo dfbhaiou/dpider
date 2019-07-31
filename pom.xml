@@ -7,7 +7,7 @@
   <groupId>cn.dpider</groupId>
   <artifactId>dpider</artifactId>
   <packaging>pom</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-RELEASE</version>
   <modules>
     <module>dpider-urlScheduler</module>
     <module>dpider-spider</module>
