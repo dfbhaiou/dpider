@@ -2,7 +2,7 @@ package cn.dpider.common.constant;
 
 public class ConstantValue {
 
-    public static final String SERVER_PATH = "dpider";
+    public static final String SERVER_PATH = "/dpider";
 
     public static final String PARAM_WEIGHT = "weight";
 
