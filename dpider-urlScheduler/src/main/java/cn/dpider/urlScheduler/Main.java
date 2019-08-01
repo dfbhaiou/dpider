@@ -17,6 +17,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         ClassPathXmlApplicationContext context = ContextUtil.loadSpringContext(
                 "spring/spring-dpider-urlScheduler.xml");
+        System.out.println((Constant.getConfig("log4j")));
         ContextUtil.loadLog4jContext(Constant.getConfig("log4j"));
 
         UrlSchedulerMonitorCenter urlSchedulerMonitorCenter =
@@ -27,7 +28,7 @@ public class Main {
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setSubPath("urlScheduler");
         registerRequest.setHost(NetUtil.getHostAddr());
-        registerRequest.setPort("0");
+        registerRequest.setPort("8181");
         registerRequest.setName(Constant.getConfig("urlSchedulerName"));
         registerRequest.setNodeInfoJson("");
         Register register = new DefaultRegistry();

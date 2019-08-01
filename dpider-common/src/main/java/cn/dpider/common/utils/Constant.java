@@ -4,8 +4,11 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -26,11 +29,13 @@ public class Constant {
         props = new Properties();
         InputStream is = null;
         try {
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream(defaultLoadProperties);
+        	System.out.println(Thread.currentThread().getContextClassLoader().getResource("").getFile()+defaultLoadProperties);
+            is = new FileInputStream(new File(Thread.currentThread().getContextClassLoader().getResource("").getFile()+ defaultLoadProperties));
             props.load(is);
         } catch (IOException ex) {
+        	ex.printStackTrace();
             logger.warn("Could not load spider.properties" ,ex.getCause());
-        } finally {
+        }  finally {
             IOUtils.closeQuietly(is);
         }
     }

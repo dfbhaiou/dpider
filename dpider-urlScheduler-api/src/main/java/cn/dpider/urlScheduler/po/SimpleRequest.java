@@ -1,10 +1,16 @@
 package cn.dpider.urlScheduler.po;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class SimpleRequest {
+public class SimpleRequest implements Serializable{
 
-    private String url;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6412389746391954816L;
+
+	private String url;
 
     private Map<String, Object> extras;
 
@@ -27,4 +33,6 @@ public class SimpleRequest {
     public Object getExtra(String key) {
         return this.extras.get(key);
     }
+    
+    
 }

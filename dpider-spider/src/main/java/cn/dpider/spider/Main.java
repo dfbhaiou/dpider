@@ -41,7 +41,7 @@ public class Main {
         ContextUtil.loadLog4jContext(Constant.getConfig("log4j"));
 
         SlaveScheduler slaveScheduler = (SlaveScheduler) context.getBean("slaveScheduler");
-        KwPipeLine pipeLine = (KwPipeLine) context.getBean("kwPipeline");
+        KwPipeLine pipeLine = (KwPipeLine) context.getBean("kwPipeLine");
 
         Spider spider = Spider.create(new KwPageProcessor())
                 .addPipeline(pipeLine)

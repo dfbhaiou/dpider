@@ -45,12 +45,13 @@
     <!--*********************************任务调度配置 end***********************************-->
 
     <!--*********************************远程RPC start ***********************************-->
-
+ 	<context:property-placeholder location="classpath:spider.properties"/>
+ 
     <!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
-    <dubbo:application name="dpider-spider"/>
+    <dubbo:application name="${dubbo.applicationName}"/>
 
     <!-- 使用zookeeper注册中心暴露服务地址 -->
-    <dubbo:registry address="zookeeper://192.168.11.182:2181" />
+    <dubbo:registry address="zookeeper://${dubbo.RegistryAddress}" />
 
     <dubbo:reference id="urlSchedulerService"
                      interface="cn.dpider.urlScheduler.api.UrlSchedulerService"
@@ -69,7 +70,7 @@
     <tx:annotation-driven transaction-manager="transactionManager" />
 
     <!--配置数据源-->
-    <context:property-placeholder location="classpath:spring/db.properties"/>
+   
     <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
         <property name="driverClassName" value="${jdbc.driver}"/>
         <property name="url" value="${jdbc.url}"/>
