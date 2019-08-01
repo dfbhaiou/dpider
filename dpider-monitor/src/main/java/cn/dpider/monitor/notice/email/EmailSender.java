@@ -28,7 +28,7 @@ public class EmailSender {
 
     private Transport ts = null;
 
-    public static BlockingQueue<Email> emailBlockingQueue = new LinkedBlockingQueue<>(0);
+    public static BlockingQueue<Email> emailBlockingQueue = new LinkedBlockingQueue<>(1);
 
     private final SendEmailThread sendEmailThread = new SendEmailThread();
 

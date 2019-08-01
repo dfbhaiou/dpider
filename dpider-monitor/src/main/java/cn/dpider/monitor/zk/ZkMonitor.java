@@ -82,7 +82,7 @@ public class ZkMonitor extends AbstractMonitor {
     }
 
     private void initUrlSchedulerCache() throws Exception {
-        String urlSchedulerZkPath = ConstantValue.SERVER_PATH + "/urlScheduler";
+        String urlSchedulerZkPath = ConstantValue.SERVER_PATH + "-urlScheduler";
         List<String> urlSchedulerList = client.getChildren().forPath(urlSchedulerZkPath);
         for (String name :
                 urlSchedulerList) {
@@ -93,7 +93,7 @@ public class ZkMonitor extends AbstractMonitor {
     }
 
     private void initSpiderCache() throws Exception {
-        String spiderZkPath = ConstantValue.SERVER_PATH + "/spider";
+        String spiderZkPath = ConstantValue.SERVER_PATH + "-spider";
         List<String> spiderList = client.getChildren().forPath(spiderZkPath);
         for (String name :
                 spiderList) {

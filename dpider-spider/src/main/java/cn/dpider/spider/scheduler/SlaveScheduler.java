@@ -39,6 +39,7 @@ public class SlaveScheduler implements Scheduler {
         }
         SimpleRequest simpleRequest = new SimpleRequest();
         simpleRequest.setUrl(url);
+        simpleRequest.setExtras(request.getExtras());
 //        此处考虑应用dubbo的哪种集群容错策略
         urlSchedulerService.push(simpleRequest);
         return;

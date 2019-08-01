@@ -1,37 +1,26 @@
 package cn.dpider.spider;
 import java.util.Date;
 
-import cn.dpider.common.constant.SpiderState;
-import cn.dpider.common.po.SpiderNode;
+import org.apache.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import cn.dpider.common.register.Register;
 import cn.dpider.common.register.RegisterRequest;
 import cn.dpider.common.register.impl.DefaultRegistry;
 import cn.dpider.common.utils.Constant;
 import cn.dpider.common.utils.ContextUtil;
 import cn.dpider.common.utils.NetUtil;
-import cn.dpider.common.zk.ZookeeperFactory;
 import cn.dpider.spider.pageProcessor.KwPageProcessor;
 import cn.dpider.spider.pipeline.KwPipeLine;
 import cn.dpider.spider.scheduler.SlaveScheduler;
 import cn.dpider.spider.spiderMonitor.SpiderMonitorCenter;
-import com.alibaba.fastjson.JSON;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.log4j.Logger;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.monitor.SpiderMonitor;
-import us.codecraft.webmagic.monitor.SpiderStatus;
-
-import javax.management.JMException;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by Ww on 2017/11/10.
  */
-public class Main {
-    private static Logger logger = Logger.getLogger(Main.class);
+public class SpiderMain {
+    private static Logger logger = Logger.getLogger(SpiderMain.class);
 
 
 
@@ -66,7 +55,7 @@ public class Main {
 
 //        addAllPage(Constant.getInt("startPage"),Constant.getInt("endPage"),kwSchedulerService,spider.getUUID());
         logger.info("spider\t" + spider.getUUID() + "startPage = " + Constant.getInt("startPage") + " endPage = " + Constant.getInt("endPage"));
-
+        
 //        SpiderMonitor.instance().register(spider);
 
         spider.run();
