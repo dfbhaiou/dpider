@@ -13,7 +13,7 @@ public class ZookeeperFactory {
 
     public static CuratorFramework create() {
         if (client == null) {
-            RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000,3);
+            RetryPolicy retryPolicy = new ExponentialBackoffRetry(3000,3);
             client = CuratorFrameworkFactory.newClient(Constant.getConfig("dubbo.RegistryAddress"),retryPolicy);
             client.start();
         }
