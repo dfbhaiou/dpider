@@ -18,7 +18,7 @@
 
     <properties>
         <dbcp2.version>RELEASE</dbcp2.version>
-        <webMagic.version>0.6.1</webMagic.version>
+        <webMagic.version>0.7.3</webMagic.version>
     </properties>
 
     <dependencies>

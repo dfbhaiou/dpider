@@ -1,5 +1,7 @@
 package cn.dpider.spider;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -11,10 +13,12 @@ import cn.dpider.common.utils.Constant;
 import cn.dpider.common.utils.ContextUtil;
 import cn.dpider.common.utils.NetUtil;
 import cn.dpider.spider.pageProcessor.KwPageProcessor;
-import cn.dpider.spider.pipeline.KwPipeLine;
-import cn.dpider.spider.scheduler.SlaveScheduler;
+import cn.dpider.spider.scheduler.IndexSlaveScheduler;
+import cn.dpider.spider.scheduler.ListSlaveScheduler;
 import cn.dpider.spider.spiderMonitor.SpiderMonitorCenter;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.Task;
 
 /**
  * Created by Ww on 2017/11/10.
@@ -27,15 +31,13 @@ public class SpiderMain {
     public static void main(String[] args) throws Exception {
         ClassPathXmlApplicationContext context = ContextUtil.loadSpringContext(
                 "spring/spring-dpider-spider.xml");
-        ContextUtil.loadLog4jContext(Constant.getConfig("log4j"));
 
-        SlaveScheduler slaveScheduler = (SlaveScheduler) context.getBean("slaveScheduler");
-        KwPipeLine pipeLine = (KwPipeLine) context.getBean("kwPipeLine");
-
-        Spider spider = Spider.create(new KwPageProcessor())
-                .addPipeline(pipeLine)
-                .setScheduler(slaveScheduler)
-                .thread(Constant.getInt("thread"));
+        ListSlaveScheduler listSlaveScheduler = (ListSlaveScheduler) context.getBean("listSlaveScheduler");
+        IndexSlaveScheduler indexSlaveScheduler = (IndexSlaveScheduler) context.getBean("indexSlaveScheduler");
+        
+        Spider spider = Spider.create(new KwPageProcessor(indexSlaveScheduler))
+        		.setScheduler(listSlaveScheduler)
+        		.thread(Constant.getInt("thread"));
 
 //        注册自己到节点
         Date startTime = new Date();
@@ -53,29 +55,29 @@ public class SpiderMain {
         SpiderMonitorCenter.submit();
 
 
-//        addAllPage(Constant.getInt("startPage"),Constant.getInt("endPage"),kwSchedulerService,spider.getUUID());
         logger.info("spider\t" + spider.getUUID() + "startPage = " + Constant.getInt("startPage") + " endPage = " + Constant.getInt("endPage"));
         
-//        SpiderMonitor.instance().register(spider);
-
+        AddPage(listSlaveScheduler);
         spider.run();
-        logger.info("spider\t" + spider.getUUID() +" run finished");
-        pipeLine.flushBufferList();
         logger.info("spider\t" + spider.getUUID() +" flushBufferList completed");
         exit(context);
     }
-
-//    public static void addAllPage(Integer startPage, Integer endPage, KwSchedulerService kwSchedulerService, String uuid) {
-//        if (!kwSchedulerService.isAddAllPage()) {
-//            List<String> urlList = new LinkedList<>();
-//            for (int i = startPage; i <= endPage; i++) {
-//                urlList.add("http://www.kuwo.cn/artist/indexAjax?category=0&prefix=&pn="+i);
-//            }
-//            SerializableTask task1 = new SerializableTask();
-//            task1.setUuid(uuid);
-//            kwSchedulerService.pushAllPage(urlList,task1);
-//        }
-//    }
+    
+    
+    public static void AddPage(ListSlaveScheduler listSlaveScheduler){
+    	int startPage = Constant.getInt("startPage");
+		int endPage = Constant.getInt("endPage");
+		for (int i = startPage; i < endPage; i++) {
+			String url = "http://www.kuwo.cn/artist/indexAjax?category=0&prefix=&pn=" + i;
+			Request request = new Request();
+			request.setUrl(url);
+			Map<String, Object> extras = new HashMap<String,Object>();
+			extras.put(Request.CYCLE_TRIED_TIMES, "0");
+			request.setExtras(extras);
+			Task task=null;
+			listSlaveScheduler.push(request,task);
+		}
+    }
 
     private static void exit(ClassPathXmlApplicationContext context) {
         context.close();

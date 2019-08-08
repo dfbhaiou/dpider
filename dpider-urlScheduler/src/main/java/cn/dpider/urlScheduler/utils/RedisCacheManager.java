@@ -1,13 +1,13 @@
 package cn.dpider.urlScheduler.utils;
 
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Redis Util
@@ -22,7 +22,7 @@ public class RedisCacheManager {
     public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
-
+    
     /**
      * 批量根据键获取
      * @param collection
@@ -131,7 +131,7 @@ public class RedisCacheManager {
      *            键
      * @return 值
      */
-    public Object get(String key) {
+    public Object get(int index,String key) {
         return key == null ? null : redisTemplate.opsForValue().get(key);
     }
 
@@ -144,7 +144,7 @@ public class RedisCacheManager {
      *            值
      * @return true成功 false失败
      */
-    public boolean set(String key, Object value) {
+    public boolean set(int index,String key, Object value) {
         try {
             redisTemplate.opsForValue().set(key, value);
             return true;
@@ -166,12 +166,12 @@ public class RedisCacheManager {
      *            时间(秒) time要大于0 如果time小于等于0 将设置无限期
      * @return true成功 false 失败
      */
-    public boolean set(String key, Object value, long time) {
+    public boolean set(int index,String key, Object value, long time) {
         try {
             if (time > 0) {
                 redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
             } else {
-                set(key, value);
+                set(index,key, value);
             }
             return true;
         } catch (Exception e) {
