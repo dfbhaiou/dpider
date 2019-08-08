@@ -1,13 +1,17 @@
 package cn.dpider.urlScheduler.support;
 
-import cn.dpider.urlScheduler.api.UrlSchedulerService;
-import cn.dpider.urlScheduler.duplicate.Duplicater;
-import cn.dpider.urlScheduler.po.SimpleRequest;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.regex.Pattern;
+import cn.dpider.urlScheduler.api.UrlSchedulerService;
+import cn.dpider.urlScheduler.duplicate.Duplicater;
+import cn.dpider.urlScheduler.po.SimpleRequest;
+import us.codecraft.webmagic.Request;
 
 public abstract class AbstractUrlSchedulerService implements UrlSchedulerService {
 
@@ -28,13 +32,59 @@ public abstract class AbstractUrlSchedulerService implements UrlSchedulerService
         if (StringUtils.isEmpty(url)) {
             return;
         }
-        if (!duplicater.isDuplicate(simpleRequest) || this.shouldReserved(simpleRequest)) {
+        if (!duplicater.isDuplicate(simpleRequest) && this.shouldReserved(simpleRequest)) {
             this.logger.debug("push to queue {}", url);
             this.pushWhenNoDuplicate(url);
         }
     }
 
-    protected void pushWhenNoDuplicate(String url) {
+    
+    
+    @Override
+	public void push(SimpleRequest simpleRequest, String redisKey) {
+		// TODO Auto-generated method stub
+    	
+    	if (simpleRequest == null) {
+            return;
+        }
+    	System.out.println("push url:" + simpleRequest.getUrl() + ",key:" + redisKey);
+        String url = simpleRequest.getUrl();
+        if (StringUtils.isEmpty(url)) {
+            return;
+        }
+        if (!duplicater.isDuplicate(simpleRequest) && this.shouldReserved(simpleRequest)) {
+            this.logger.debug("push to queue {}", url);
+            this.pushWhenNoDuplicate(url,redisKey);
+        }
+	}
+
+
+
+	@Override
+	public SimpleRequest poll(String redisKey) {
+		// TODO Auto-generated method stub
+		
+		SimpleRequest simpleRequest = null;
+        String url = doPoll(redisKey);
+        if (StringUtils.isEmpty(url)) {
+        	return simpleRequest;
+        }
+        
+        simpleRequest = new SimpleRequest();
+        simpleRequest.setUrl(url);
+        System.out.println("poll url:" + simpleRequest.getUrl() + ",key:" + redisKey);
+        Map<String, Object> extras = new HashMap<String,Object>();
+        extras.put(Request.CYCLE_TRIED_TIMES, "0");
+		simpleRequest.setExtras(extras);
+        return simpleRequest;
+	}
+
+
+
+	protected void pushWhenNoDuplicate(String url) {
+    }
+	
+	protected void pushWhenNoDuplicate(String url,String redisKey) {
     }
 
     protected boolean isHighPriorityUrl(String url) {
@@ -46,7 +96,13 @@ public abstract class AbstractUrlSchedulerService implements UrlSchedulerService
     }
 
     protected boolean shouldReserved(SimpleRequest request) {
-        return request.getExtra("_cycle_tried_times") != null;
+    	boolean flag = false;
+    	try{
+    		flag = (request.getExtra("_cycle_tried_times") != null);
+    	}catch(Exception e){
+    		flag = false;
+    	}
+        return flag;
     }
 
     @Override
@@ -61,6 +117,10 @@ public abstract class AbstractUrlSchedulerService implements UrlSchedulerService
     }
 
     protected String doPoll() {
+        return null;
+    }
+    
+    protected String doPoll(String redisKey) {
         return null;
     }
 

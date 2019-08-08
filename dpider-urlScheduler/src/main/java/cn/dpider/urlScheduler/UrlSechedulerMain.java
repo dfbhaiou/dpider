@@ -1,5 +1,9 @@
 package cn.dpider.urlScheduler;
 
+import java.util.Date;
+
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import cn.dpider.common.register.Register;
 import cn.dpider.common.register.RegisterRequest;
 import cn.dpider.common.register.impl.DefaultRegistry;
@@ -7,18 +11,20 @@ import cn.dpider.common.utils.Constant;
 import cn.dpider.common.utils.ContextUtil;
 import cn.dpider.common.utils.NetUtil;
 import cn.dpider.urlScheduler.urlScdMoniter.UrlSchedulerMonitorCenter;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import java.io.IOException;
-import java.util.Date;
 
 public class UrlSechedulerMain {
 
     public static void main(String[] args) throws Exception {
         ClassPathXmlApplicationContext context = ContextUtil.loadSpringContext(
                 "spring/spring-dpider-urlScheduler.xml");
-        System.out.println((Constant.getConfig("log4j")));
-        ContextUtil.loadLog4jContext(Constant.getConfig("log4j"));
+        
+      /*  RedisCacheManager redisManager = (RedisCacheManager)context.getBean("redisCacheManager");
+        redisManager.set(0, "key", "deng");
+        redisManager.set(1, "key", "dengbin");
+        System.out.println(redisManager.get(0, "key"));
+        System.out.println(redisManager.get(1, "key"));*/
+       /* System.out.println((Constant.getConfig("log4j")));
+        ContextUtil.loadLog4jContext(Constant.getConfig("log4j"));*/
 
         UrlSchedulerMonitorCenter urlSchedulerMonitorCenter =
                 (UrlSchedulerMonitorCenter) context.getBean("urlSchedulerMonitorCenter");

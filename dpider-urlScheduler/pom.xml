@@ -19,6 +19,7 @@
 	<properties>
 		<redis.version>2.9.0</redis.version>
 		<spring.redis.version>1.8.4.RELEASE</spring.redis.version>
+		<webMagic.version>0.7.3</webMagic.version>
 	</properties>
 
 	<dependencies>
@@ -42,6 +43,22 @@
 			<artifactId>spring-data-redis</artifactId>
 			<version>${spring.redis.version}</version>
 		</dependency>
+		
+		 <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-core</artifactId>
+            <version>${webMagic.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 	</dependencies>
 
 	<build>

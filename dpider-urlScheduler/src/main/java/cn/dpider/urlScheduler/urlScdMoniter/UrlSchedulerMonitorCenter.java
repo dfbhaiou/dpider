@@ -35,9 +35,9 @@ public class UrlSchedulerMonitorCenter {
         urlSchedulerNode.setName(name);
         urlSchedulerNode.setStartTime(startTime);
 
-        urlSchedulerNode.setHpSize(redisCacheManager.lGetListSize(ConstantValue.REDIS_HP_URL));
-        urlSchedulerNode.setLpSize(redisCacheManager.lGetListSize(ConstantValue.REDIS_LP_URL));
-        urlSchedulerNode.setConsumedSize(redisCacheManager.sGetSetSize(ConstantValue.REDIS_CONSUMED));
+        urlSchedulerNode.setHpSize(redisCacheManager.lGetListSize(ConstantValue.REDIS_KEY_KW_LIST));
+        urlSchedulerNode.setLpSize(redisCacheManager.lGetListSize(ConstantValue.REDIS_KEY_KW_INDEX));
+        urlSchedulerNode.setConsumedSize(redisCacheManager.sGetSetSize(ConstantValue.REDIS_KEY_KW_SONG));
 
         urlSchedulerNode.setUpdateTime(now);
         urlSchedulerNode.setRunTime(0.0D);

@@ -88,6 +88,8 @@
     </bean>
 
     <!--配置slaveScheduler-->
-    <bean id="slaveScheduler" class="cn.dpider.spider.scheduler.SlaveScheduler"></bean>
+    <bean id="listSlaveScheduler" class="cn.dpider.spider.scheduler.ListSlaveScheduler"></bean>
+     <bean id="indexSlaveScheduler" class="cn.dpider.spider.scheduler.IndexSlaveScheduler"></bean>
+      <bean id="songSlaveScheduler" class="cn.dpider.spider.scheduler.SongSlaveScheduler"></bean>
 
 </beans>

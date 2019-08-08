@@ -13,8 +13,12 @@ import cn.dpider.common.utils.Constant;
 import cn.dpider.common.utils.ContextUtil;
 import cn.dpider.common.utils.NetUtil;
 import cn.dpider.spider.pageProcessor.KwPageProcessor;
+import cn.dpider.spider.pageProcessor.KwPageProcessor2;
+import cn.dpider.spider.pageProcessor.KwPageProcessor3;
+import cn.dpider.spider.pipeline.KwPipeLine;
 import cn.dpider.spider.scheduler.IndexSlaveScheduler;
 import cn.dpider.spider.scheduler.ListSlaveScheduler;
+import cn.dpider.spider.scheduler.SongSlaveScheduler;
 import cn.dpider.spider.spiderMonitor.SpiderMonitorCenter;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -23,8 +27,8 @@ import us.codecraft.webmagic.Task;
 /**
  * Created by Ww on 2017/11/10.
  */
-public class SpiderMain {
-    private static Logger logger = Logger.getLogger(SpiderMain.class);
+public class SongSpiderMain {
+    private static Logger logger = Logger.getLogger(SongSpiderMain.class);
 
 
 
@@ -32,12 +36,15 @@ public class SpiderMain {
         ClassPathXmlApplicationContext context = ContextUtil.loadSpringContext(
                 "spring/spring-dpider-spider.xml");
 
-        ListSlaveScheduler listSlaveScheduler = (ListSlaveScheduler) context.getBean("listSlaveScheduler");
-        IndexSlaveScheduler indexSlaveScheduler = (IndexSlaveScheduler) context.getBean("indexSlaveScheduler");
+        SongSlaveScheduler songSlaveScheduler = (SongSlaveScheduler) context.getBean("songSlaveScheduler");
         
-        Spider spider = Spider.create(new KwPageProcessor(indexSlaveScheduler))
-        		.setScheduler(listSlaveScheduler)
-        		.thread(Constant.getInt("thread"));
+        KwPipeLine pipeLine = (KwPipeLine) context.getBean("kwPipeLine");
+        
+        Spider songSpider = Spider.create(new KwPageProcessor3(songSlaveScheduler))
+                .setScheduler(songSlaveScheduler)
+                .addPipeline(pipeLine)
+                .thread(Constant.getInt("thread"));
+        
 
 //        注册自己到节点
         Date startTime = new Date();
@@ -45,38 +52,20 @@ public class SpiderMain {
         registerRequest.setSubPath("spider");
         registerRequest.setHost(NetUtil.getHostAddr());
         registerRequest.setPort("0");
-        registerRequest.setName(Constant.getConfig("spiderName"));
+        registerRequest.setName("song-spider-" + Constant.getConfig("spiderName"));
         registerRequest.setNodeInfoJson("");
 
         Register register = new DefaultRegistry();
         String path = register.register(registerRequest);
 //        再将自身节点初始数据更新一遍到zk
-        SpiderMonitorCenter.init(path,Constant.getConfig("spiderName"),startTime);
+        SpiderMonitorCenter.init(path,"song-spider-" + Constant.getConfig("spiderName"),startTime);
         SpiderMonitorCenter.submit();
 
-
-        logger.info("spider\t" + spider.getUUID() + "startPage = " + Constant.getInt("startPage") + " endPage = " + Constant.getInt("endPage"));
-        
-        AddPage(listSlaveScheduler);
-        spider.run();
-        logger.info("spider\t" + spider.getUUID() +" flushBufferList completed");
+        songSpider.run();
+        logger.info("songSpider\t" + songSpider.getUUID() +" run finished");
+        pipeLine.flushBufferList();
+        logger.info("songSpider\t" + songSpider.getUUID() +" flushBufferList completed");
         exit(context);
-    }
-    
-    
-    public static void AddPage(ListSlaveScheduler listSlaveScheduler){
-    	int startPage = Constant.getInt("startPage");
-		int endPage = Constant.getInt("endPage");
-		for (int i = startPage; i < endPage; i++) {
-			String url = "http://www.kuwo.cn/artist/indexAjax?category=0&prefix=&pn=" + i;
-			Request request = new Request();
-			request.setUrl(url);
-			Map<String, Object> extras = new HashMap<String,Object>();
-			extras.put(Request.CYCLE_TRIED_TIMES, "0");
-			request.setExtras(extras);
-			Task task=null;
-			listSlaveScheduler.push(request,task);
-		}
     }
 
     private static void exit(ClassPathXmlApplicationContext context) {

@@ -2,6 +2,7 @@ package cn.dpider.urlScheduler.support.redis;
 
 import cn.dpider.common.constant.ConstantValue;
 import cn.dpider.common.utils.Constant;
+import cn.dpider.urlScheduler.po.SimpleRequest;
 import cn.dpider.urlScheduler.support.AbstractUrlSchedulerService;
 import cn.dpider.urlScheduler.utils.RedisCacheManager;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ public class RedisUrlSchedulerServiceImpl extends AbstractUrlSchedulerService {
         return;
     }
 
+    
     @Override
     protected String doPoll() {
         String url = null;
@@ -41,4 +43,29 @@ public class RedisUrlSchedulerServiceImpl extends AbstractUrlSchedulerService {
         }
         return url;
     }
+
+
+	@Override
+	protected String doPoll(String redisKey) {
+		// TODO Auto-generated method stub
+		 String url = null;
+		 if(redisKey!=null){
+			 url = (String) redisCacheManager.lrpop(redisKey);
+		 }
+		 return url;
+	}
+
+
+
+	@Override
+	protected void pushWhenNoDuplicate(String url, String redisKey) {
+		// TODO Auto-generated method stub
+		 if (redisKey!=null) {
+	            redisCacheManager.lladd(redisKey, url);
+	        }
+	        return;
+	}
+    
+    
+    
 }

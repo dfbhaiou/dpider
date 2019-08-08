@@ -40,12 +40,12 @@ public class KwPipeLine implements Pipeline {
 
     public void process(ResultItems resultItems, Task task) {
         if (resultItems.get("song") != null) {
-            Song song = resultItems.get("song");
+            List<Song> song = resultItems.get("song");
 
             if (bufferList.size() < 500) {
                 lock.lock();
                 try {
-                    bufferList.add(song);
+                    bufferList.addAll(song);
                 } finally {
                     lock.unlock();
                 }
@@ -54,7 +54,7 @@ public class KwPipeLine implements Pipeline {
                 try {
 //                    批量方案（完成）
                     if (bufferList.size() < 500) {
-                        bufferList.add(song);
+                        bufferList.addAll(song);
                     } else {
                         try {
 //                            为了性能，用SpringJDBC

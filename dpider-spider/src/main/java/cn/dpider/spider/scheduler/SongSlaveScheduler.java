@@ -1,9 +1,12 @@
 package cn.dpider.spider.scheduler;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import cn.dpider.common.constant.ConstantValue;
 import cn.dpider.urlScheduler.api.UrlSchedulerService;
 import cn.dpider.urlScheduler.po.SimpleRequest;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.scheduler.Scheduler;
@@ -26,8 +29,10 @@ import us.codecraft.webmagic.scheduler.Scheduler;
  *   以上的几个属性都先不用
  *
  */
-public class SlaveScheduler implements Scheduler {
+public class SongSlaveScheduler implements Scheduler {
 
+	 private static Logger logger = Logger.getLogger(SongSlaveScheduler.class);
+	 
     @Autowired
     UrlSchedulerService urlSchedulerService;
 
@@ -41,18 +46,21 @@ public class SlaveScheduler implements Scheduler {
         simpleRequest.setUrl(url);
         simpleRequest.setExtras(request.getExtras());
 //        此处考虑应用dubbo的哪种集群容错策略
-        urlSchedulerService.push(simpleRequest);
+        urlSchedulerService.push(simpleRequest,ConstantValue.REDIS_KEY_KW_SONG);
         return;
     }
 
     @Override
     public Request poll(Task task) {
-        SimpleRequest simpleRequest = urlSchedulerService.poll();
+        SimpleRequest simpleRequest = urlSchedulerService.poll(ConstantValue.REDIS_KEY_KW_SONG);
+        System.out.println("SongSlaveScheduler poll.....");
         Request request = new Request();
         if (simpleRequest == null) {
             return request;
         }
+        System.out.println("SongSlaveScheduler poll:" + simpleRequest.getUrl());
         request.setUrl(simpleRequest.getUrl());
+        request.setExtras(simpleRequest.getExtras());
         return request;
     }
 }

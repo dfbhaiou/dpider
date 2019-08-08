@@ -36,6 +36,7 @@
         <property name="poolConfig" ref="jedisPoolConfig" />
         <!-- usePool：是否使用连接池 -->
         <property name="usePool" value="true"/>
+        <!-- <property name="database" value="0"/> -->
     </bean>
 
     <!-- redis template definition -->
