@@ -21,16 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class KwPageProcessor_bak implements PageProcessor {
 
     private static Logger logger = Logger.getLogger(KwPageProcessor_bak.class);
-    private ArrayList<String> userAgents;
-
-
-    public KwPageProcessor_bak() {
-        try {
-            userAgents = PageUtil.getUserAgentList(Constant.getConfig("userAgents"));
-        } catch (IOException e) {
-            logger.error(e);
-        }
-    }
 
 //     Domain
     private final String DOMAIN = "http://www\\.kuwo\\.cn";
@@ -143,7 +133,7 @@ public class KwPageProcessor_bak implements PageProcessor {
             currentInfo = "kwSpider/歌曲详情页面/songName = " + song.getName() + "/singer = " + song.getSinger() +"/album = " + song.getAlbum() + "/kwid = " + song.getKwid() + "/comments = " + song.getComments();
         }
 
-        site.setUserAgent(randomUserAgent());
+        site.setUserAgent(Constant.randomUserAgent());
         currentInfo = TimeUtils.dateToString(new Date(System.currentTimeMillis())) + ":\t" + currentInfo;
         logger.info("currentInfo:\t" + currentInfo);
 
@@ -156,9 +146,6 @@ public class KwPageProcessor_bak implements PageProcessor {
         return site;
     }
 
-    public String randomUserAgent(){
-        Random random = new Random();
-        return userAgents.get(random.nextInt(userAgents.size()-1));
-    }
+  
 
 }

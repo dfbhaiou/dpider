@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSONObject;
 
+import cn.dpider.common.utils.Constant;
 import cn.dpider.spider.po.Song;
 import cn.dpider.spider.scheduler.SongSlaveScheduler;
 import us.codecraft.webmagic.Page;
@@ -30,13 +31,7 @@ public class KwPageProcessor3 implements PageProcessor {
 	private final String DOMAIN = "http://www.kuwo.cn";
 	private final String API_DOMAIN = "http://www.kuwo.cn/api/";
 	// 歌手列表
-	private final String SINGER_LIST_VIEW = DOMAIN + "/artist/indexAjax.*";
-
 	private final String SINGER_LIST_VIEW_JOSN = API_DOMAIN + "www/artist/artistMusic\\?artistid.+";
-	
-	private final String SINGER_LIST_JOSN_ADDRESS =  API_DOMAIN + "www/artist/artistMusic?";
-	// 歌手首页
-	private final String SINGER_INDEX_VIEW = DOMAIN + "/artist/content\\?name=.+";
 
 	private Site site = Site.me().addHeader("Referer", DOMAIN).setDomain(DOMAIN).setRetryTimes(3).setSleepTime(3000)
 			.setTimeOut(10000)
@@ -101,6 +96,7 @@ public class KwPageProcessor3 implements PageProcessor {
 				}
 			}	
 			curPage ++;
+			site.setUserAgent(Constant.randomUserAgent());
 		}
 	}
 

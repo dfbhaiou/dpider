@@ -46,16 +46,6 @@ public class PageUtil {
         }
     }
 
-    public static ArrayList<String> getUserAgentList(String fileName) throws IOException {
-        InputStreamReader reader = new InputStreamReader(new FileInputStream(fileName));
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        ArrayList<String> stringArrayList = new ArrayList<>();
-        String lineText;
-        while ((lineText = bufferedReader.readLine()) != null){
-            stringArrayList.add(lineText.replaceAll("User-Agent:","").trim());
-        }
-        return stringArrayList;
-    }
 
     public static String getValueByKeyInHtml(String src, String key) {
         Pattern pattern = Pattern.compile("(?:" + key + "\\s*=\\s*)" + "['\"](.*?)['\"]");

@@ -4,13 +4,17 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
 /**
  * Created by wanhongji on 2017/11/20.
@@ -19,9 +23,14 @@ public class Constant {
     private static Logger logger = Logger.getLogger(Constant.class);
 
     private static Properties props;
+    
+    private static  ArrayList<String> stringArrayList ;
 
     private static String defaultLoadProperties = "spider.properties";//默认加载配置文件
-
+    private static String defaultUserAgents = "userAgents.txt";
+    private static InputStreamReader reader;
+    private static BufferedReader bufferedReader;
+    
     /**
      * 静态加载配置文件
      */
@@ -29,18 +38,32 @@ public class Constant {
         props = new Properties();
         InputStream is = null;
         try {
-        	System.out.println(Thread.currentThread().getContextClassLoader().getResource("").getFile()+defaultLoadProperties);
             is = new FileInputStream(new File(Thread.currentThread().getContextClassLoader().getResource("").getFile()+ defaultLoadProperties));
             props.load(is);
+            
+            stringArrayList = new ArrayList<>();
+            File file = new File(Thread.currentThread().getContextClassLoader().getResource("").getFile()+ defaultUserAgents);
+            reader = new InputStreamReader(new FileInputStream(file));
+            bufferedReader = new BufferedReader(reader);
+            String lineText;
+            while ((lineText = bufferedReader.readLine()) != null){
+                stringArrayList.add(lineText.replaceAll("User-Agent:","").trim());
+            }
         } catch (IOException ex) {
         	ex.printStackTrace();
             logger.warn("Could not load spider.properties" ,ex.getCause());
         }  finally {
             IOUtils.closeQuietly(is);
+            IOUtils.closeBufferReader(bufferedReader);
+            IOUtils.closeInputStreamReader(reader);
         }
     }
 
-
+    public static String randomUserAgent(){
+        Random random = new Random();
+        return stringArrayList.get(random.nextInt(stringArrayList.size()-1));
+    }
+    
     /**
      * 保存全局属性值(缓存)
      */
